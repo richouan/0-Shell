@@ -1,4 +1,6 @@
 use std::io::{self, Write};
+mod commands;
+use commands::echo;
 
 fn main() {
     loop {
@@ -8,10 +10,8 @@ fn main() {
         let mut input = String::new();
         let bytes_read = io::stdin().read_line(&mut input).unwrap();
 
-        // Handle EOF: Ctrl+D on Linux, Ctrl+Z on Windows
-        if bytes_read == 0 || input.trim().is_empty() {
+        if bytes_read == 0 {
             println!();
-            println!("exit");
             break;
         }
 
@@ -20,6 +20,14 @@ fn main() {
             continue;
         }
 
-        println!("You typed: {}", input);
+        let mut parts = input.split_whitespace();
+        let cmd = parts.next().unwrap();
+        let args: Vec<&str> = parts.collect();
+
+        match cmd {
+            "exit" => break,
+            "echo" => echo::run(&args),
+            _ => eprintln!("Command '{}' not found", cmd),
+        }
     }
 }
